@@ -1,0 +1,59 @@
+cabal-version:      3.0
+
+-- The name of the package.
+name:               HaskellGameJamTemplate
+
+-- The package version.
+-- See the Haskell package versioning policy (PVP) for standards
+-- guiding when and how versions should be incremented.
+-- https://pvp.haskell.org
+version:            1.0.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- The license under which the package is released.
+license:            Apache-2.0
+
+-- The file containing the license text.
+license-file:       LICENSE
+
+-- The package author(s).
+author:             Change Me
+
+-- An email address to which users can send suggestions, bug reports, and patches.
+maintainer:         changeme@ed.ac.uk
+
+-- A copyright notice.
+-- copyright:
+
+category:           Game
+build-type:         Simple
+
+executable Game
+    ghc-options:      -Wall
+
+    -- .hs or .lhs file containing the Main module.
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    other-modules:
+        Game
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+
+    -- Other library packages from which modules are imported.
+    build-depends:
+        base ^>=4.16.4.0,
+        sdl2 ^>=2.5.5.0,
+        text ^>=2.1.1
+
+    -- Directories containing source files.
+    hs-source-dirs:   src
+
+    -- Base language which the package is written in.
+    default-language: Haskell2010

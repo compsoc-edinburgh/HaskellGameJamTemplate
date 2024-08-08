@@ -1,0 +1,6 @@
+# This file contains patterns for files and directories that should not be
+# included in Git, the version control software used for this project.
+
+dist-newstyle/
+.cabal
+.DS_Store
