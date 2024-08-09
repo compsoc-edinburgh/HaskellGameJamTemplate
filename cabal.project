@@ -8,8 +8,6 @@ if os(windows)
         -- is found in the system package manager.
         -- On Linux, run: apt-get install libsdl2-dev
         -- On OSX, run: brew install sdl2
-        extra-include-dirs: sdl/include
-        extra-lib-dirs: sdl/lib
 
     package text
         -- Disable use of SIMD, which makes text fails to build on Win + GHC 8.8.4
