@@ -60,7 +60,7 @@ executable Game
         -- is found in the system package manager.
         -- Linux: apt-get install libsdl2-dev
         -- OSX: brew install sdl2
-        extra-bundled-libraries: CSDL2
+        extra-libraries: SDL2
 
 
     -- Base language which the package is written in.
