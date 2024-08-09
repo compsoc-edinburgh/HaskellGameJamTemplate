@@ -55,7 +55,13 @@ executable Game
     -- Directories containing source files.
     hs-source-dirs:   src
 
-    extra-bundled-libraries: SDL2
+    if os(windows)
+        -- Extra libraries needed for the Windows platform. On Linux/OSX, SDL2
+        -- is found in the system package manager.
+        -- Linux: apt-get install libsdl2-dev
+        -- OSX: brew install sdl2
+        extra-bundled-libraries: SDL2
+
 
     -- Base language which the package is written in.
     default-language: Haskell2010

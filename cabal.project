@@ -1,2 +1,5 @@
 packages: ./*.cabal
+if os(windows)
+    package sdl2
+        flags: -pkgconfig
 documentation: true
