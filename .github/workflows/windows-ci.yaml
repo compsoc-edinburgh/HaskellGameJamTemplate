@@ -18,6 +18,9 @@ jobs:
 
       - name: Check out code
         uses: actions/checkout@v2
+      
+      - name: Update cabal
+        run: cabal update
 
       - name: Build project
         run: cabal build
