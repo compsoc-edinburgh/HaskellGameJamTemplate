@@ -10,6 +10,7 @@ import Distribution.Simple
     ( Args
     , UserHooks
     , confHook
+    , defaultMain
     , defaultMainWithHooks
     , simpleUserHooks
     )
@@ -32,7 +33,9 @@ import System.Directory
     )
 
 main :: IO ()
-main = defaultMainWithHooks simpleUserHooks { confHook = sdlConfHook }
+main = case buildOS of
+    Windows -> defaultMainWithHooks simpleUserHooks { confHook = sdlConfHook }
+    _ -> defaultMain
 
 -- | A hook that adds the SDL include and lib directories to the build info on
 -- Windows. This is necessary to link against the SDL library during compilation.
@@ -53,23 +56,23 @@ main = defaultMainWithHooks simpleUserHooks { confHook = sdlConfHook }
 -- custom Setup.hs file, which runs during the build process and basically
 -- dynamically modifies the .cabal file to add absolute paths before GHC reads it.
 sdlConfHook :: (GenericPackageDescription, HookedBuildInfo) -> ConfigFlags -> IO LocalBuildInfo
-sdlConfHook (description, buildInfo) flags =
-    -- Only add the SDL include and lib directories on Windows
-    if buildOS /= Windows
-        then pure $ fromJust $ confHook simpleUserHooks (description, buildInfo) flags
-        else do
-            localBuildInfo <- confHook simpleUserHooks (description, buildInfo) flags
-            let packageDescription = localPkgDescr localBuildInfo
-                library = fromJust $ library packageDescription
-                libraryBuildInfo = libBuildInfo library
-            dir <- getCurrentDirectory
-            pure localBuildInfo {
-                localPkgDescr = packageDescription {
-                    library = Just $ library {
-                        libBuildInfo = libraryBuildInfo {
-                            includeDirs = (dir ++ "/sdl2_win_mingw/include"):(includeDirs libraryBuildInfo),
-                            extraLibDirs = (dir ++ "/sdl2_win_mingw/lib"):(extraLibDirs libraryBuildInfo)
-                        }
-                    }
+sdlConfHook (description, buildInfo) flags = do
+    putStrLn "\ESC[34mRunning custom SDL configuration hook for Windows\ESC[m"
+    putStrLn "\ESC[34mGetting local build info\ESC[m"
+    localBuildInfo <- confHook simpleUserHooks (description, buildInfo) flags
+    let packageDescription = localPkgDescr localBuildInfo
+        library = fromJust $ library packageDescription
+        libraryBuildInfo = libBuildInfo library
+    putStrLn "\ESC[34mGetting current directory\ESC[m"
+    dir <- getCurrentDirectory
+    putStrLn "\ESC[34mAdding SDL include and lib directories: " ++ dir ++ "\ESC[m"
+    pure localBuildInfo {
+        localPkgDescr = packageDescription {
+            library = Just $ library {
+                libBuildInfo = libraryBuildInfo {
+                    includeDirs = (dir ++ "/sdl2_win_mingw/include"):(includeDirs libraryBuildInfo),
+                    extraLibDirs = (dir ++ "/sdl2_win_mingw/lib"):(extraLibDirs libraryBuildInfo)
                 }
             }
+        }
+    }
