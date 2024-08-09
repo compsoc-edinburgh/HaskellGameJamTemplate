@@ -1,0 +1,36 @@
+name: Windows CI
+
+on:
+  push:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        ghc: ["8.8.4", "8.10.7", "9.4.8"]
+
+    steps:
+      - name: Set up GHC
+        uses: haskell-actions/setup@v2
+        with:
+          ghc-version: ${{ matrix.ghc }}
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Build project
+        run: cabal build
+
+      - name: Create a zip with exe file and assets
+        run: |
+          mkdir -p exe
+          cp $(cabal list-bin Game) exe/
+          cp -r assets exe/
+          7z a exe.zip exe
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-artifacts
+          path: exe.zip
