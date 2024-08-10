@@ -43,14 +43,14 @@ data Bullet = Bullet
 -- To see where this is called, check out Main.hs.
 init :: IO GameState
 init = do
-    putStrLn "[INFO] Game initialisation! Loading assets..."
+    putStrLn "[info] Game initialisation! Loading assets..."
 
     -- We load the player texture from a BMP file. We *could* do this in the
     -- draw function when we need it (on demand), but it'll be laggy!!
     -- (Because accessing files is slow compared to how fast a game runs)
     surface <- SDL.loadBMP "assets/char0.bmp"
 
-    putStrLn "[INFO] Game initialisation complete!"
+    putStrLn "[info] Game initialisation complete!"
 
     -- Get the current milliseconds since SDL was initialised as a Word32
     ticks <- SDL.getTicks

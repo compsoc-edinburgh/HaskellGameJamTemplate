@@ -10,19 +10,19 @@ import Game
 -- It then enters the application loop.
 main :: IO ()
 main = do
-    putStrLn "[INFO] Starting SDL2, the window and graphics library"
+    putStrLn "[info] Starting SDL2, the window and graphics library"
     SDL.initializeAll
 
-    putStrLn "[INFO] Creating a window"
+    putStrLn "[info] Creating a window"
     window <- SDL.createWindow (Text.pack "My Game Window") SDL.defaultWindow
-    putStrLn "[INFO] Creating a renderer"
+    putStrLn "[info] Creating a renderer"
     renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
 
-    putStrLn "[INFO] Initialising the game"
+    putStrLn "[info] Initialising the game"
     gameState <- Game.init
 
-    putStrLn "[INFO] Starting the app loop"
+    putStrLn "[info] Starting the app loop"
     Game.gameLoop renderer gameState
 
-    putStrLn "[INFO] Exiting"
+    putStrLn "[info] Exiting"
     SDL.destroyWindow window
