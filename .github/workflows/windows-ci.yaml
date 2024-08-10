@@ -32,7 +32,7 @@ jobs:
           mkdir -p exe
           cp $(cabal list-bin Game) exe/
           cp -r assets exe/
-          cp sdl/bin/SDL2.dll exe/
+          cp sdl2_win_mingw/bin/SDL2.dll exe/
           7z a exe.zip exe
 
       - name: Upload artifacts
