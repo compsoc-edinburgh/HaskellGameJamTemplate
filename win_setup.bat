@@ -42,8 +42,14 @@ rem Create a cabal.project.local file containing the path to the local SDL2 libr
 echo.[32minfo [0m Creating cabal.project.local file...
 (
 echo.package sdl2
+echo.    -- Disable pkg-config, as we instead supply the path to the SDL2 libraries manually
+echo.    flags: -pkgconfig
+echo.    -- Supply the path to the local SDL2 libraries (must be absolute path)
 echo.    extra-lib-dirs: "%cd:\=\\%\\sdl2_win_mingw\\lib"
 echo.    extra-include-dirs: "%cd:\=\\%\\sdl2_win_mingw\\include\\SDL2"
+echo.package text
+echo.    -- Disable use of SIMD, which makes text fails to build on Win + GHC 8.8.4
+echo.    flags: -simdutf
 )>"cabal.project.local"
 echo [32mSetup complete! Try running '[107m[30mcabal run[0m[32m' to build the project.[0m
-echo If you encounter problems, try asking Discord.
+echo If you encounter problems, try asking on Discord.

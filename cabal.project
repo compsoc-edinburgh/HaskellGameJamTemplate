@@ -1,10 +1,2 @@
 packages: ./*.cabal
-if os(windows)
-    package sdl2
-        -- Disable searching with pkgconfig on Win, as a DLL is supplied instead
-        flags: -pkgconfig
-
-    package text
-        -- Disable use of SIMD, which makes text fails to build on Win + GHC 8.8.4
-        flags: -simdutf
 documentation: true
