@@ -5,3 +5,4 @@ dist-newstyle/
 .cabal
 .DS_Store
 cabal.project.local
+sdl2_win_mingw
