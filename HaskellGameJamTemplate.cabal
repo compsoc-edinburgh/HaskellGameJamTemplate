@@ -31,12 +31,6 @@ maintainer:         changeme@ed.ac.uk
 -- copyright:
 
 category:           Game
-build-type:         Custom
-
-custom-setup
-    setup-depends: base >= 4.10.0.0,
-                   Cabal >= 3.6,
-                   directory ^>= 1.3.0.0
 
 executable Game
     ghc-options:      -Wall
