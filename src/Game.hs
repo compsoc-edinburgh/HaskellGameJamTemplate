@@ -2,6 +2,7 @@ module Game where
 
 -- Import SDL but make it qualified so we can refer to it as SDL.<function>
 import qualified SDL
+import qualified SDL.Raw.Timer as SDL (getTicks)
 -- Some SDL functions are easier to use if we import them unqualified:
 import SDL (($=))
 import Control.Monad (unless)
@@ -9,9 +10,19 @@ import Control.Monad (unless)
 -- | The central game state that contains every single bit of information about
 -- the current state of the game.
 data GameState = GameState
-    { statePlayer :: Player
+    { stateInternal :: InternalState
+    , statePlayer :: Player
     , stateEnemies :: [Enemy]
     , stateBullets :: [Bullet]
+    }
+
+data InternalState = InternalState
+    { internalNextGameTick :: Double
+    -- ^ The time at which the next game step should occur.
+    , internalLastGameTick :: Double
+    -- ^ The time at which the last game step occurred, to calculate FPS.
+    , internalLastFiveFrameTimes :: [Double]
+    -- ^ The last five frame times, to smoothen the FPS calculation.
     }
 
 -- | These are arbitrary data types that represent the player, enemies, and bullets.
@@ -49,9 +60,17 @@ init = do
 
     putStrLn "[INFO] Game initialisation complete!"
 
+    -- Get the current milliseconds since SDL was initialised as a Word32
+    ticks <- SDL.getTicks
+
     -- Return the initial game state
     pure $ GameState
-        { statePlayer = Player
+        { stateInternal = InternalState
+            { internalNextGameTick = fromIntegral ticks
+            , internalLastGameTick = 0
+            , internalLastFiveFrameTimes = []
+            }
+        , statePlayer = Player
             { playerPosition = (0, 0)
             , playerHealth = 100
             , playerSpriteCache = surface
@@ -60,22 +79,57 @@ init = do
         , stateBullets = []
         }
 
--- | This is the main loop of our application. It polls for events, acts on them,
--- renders, and loops to repeat forever until the user wants to quit.
+-- | Target frames per second for the game loop. We use a fixed timestep game
+-- loop in this template to make it easier to reason about the game's state.
+targetFPS :: Int
+targetFPS = 60
+
+-- | This is the main loop of our application. In the most basic sense, it is a
+-- loop that continuously polls for events, acts on them, renders, and repeats
+-- until the user wants to quit.
+-- There is added functionality to make sure the game runs at a consistent speed
+-- (targetFPS) so that the game speed is not tied to the speed of the computer
+-- running it. This is called a "fixed timestep" game loop. It is implemented by
+-- delaying the thread when we are faster than the target FPS.
 gameLoop :: SDL.Renderer -> GameState -> IO ()
 gameLoop renderer gamestate = do
-    -- Get all the events that have happened since the last frame
-    events <- SDL.pollEvents
+    -- Get the current time since game start in milliseconds
+    now <- fromIntegral <$> SDL.getTicks
 
-    -- Update the game state
-    updatedGameState <- updateState gamestate
+    -- When should we render the next frame?
+    let nextFrameTick = internalNextGameTick (stateInternal gamestate)
+    if nextFrameTick > now
+        -- If we're ahead of schedule for target FPS, wait until the next frame
+        then do
+            SDL.delay (fromIntegral (round (nextFrameTick - now) :: Int))
+            gameLoop renderer gamestate
+        else do
+            -- Get all the events that have happened since the last frame
+            events <- SDL.pollEvents
 
-    -- Draw the game state to the screen
-    drawState renderer updatedGameState
+            -- Update the game state
+            updatedGameState <- updateState gamestate
 
-    -- Check if the user has requested to close the window and if so, exit the game.
-    let userRequestedClose = any isWindowCloseEvent events
-    unless userRequestedClose (gameLoop renderer updatedGameState)
+            -- Draw the game state to the screen
+            drawState renderer updatedGameState
+
+            -- Check if the user has requested to close the window and only loop
+            -- if they haven't!
+            let userRequestedClose = any isWindowCloseEvent events
+            unless userRequestedClose $ do
+                -- Print the current frames per second to the console for debugging
+                printFPS (stateInternal gamestate)
+
+                -- Continue the game loop with the updated game state, plus the
+                -- scheduled time of the next frame and the current time.
+                let lastFrameTick = internalLastGameTick (stateInternal gamestate)
+                gameLoop renderer updatedGameState
+                    { stateInternal = InternalState
+                        { internalNextGameTick = nextFrameTick + (1000 / fromIntegral targetFPS)
+                        , internalLastGameTick = now
+                        , internalLastFiveFrameTimes = (now - lastFrameTick) : take 4 (internalLastFiveFrameTimes (stateInternal gamestate))
+                        }
+                    }
   where
     -- | This function checks if the event given to us by SDL is a window close event,
     -- (i.e. the user has clicked the close button on the window).
@@ -84,23 +138,33 @@ gameLoop renderer gamestate = do
             SDL.WindowClosedEvent _data -> True
             _ -> False
 
+-- | This function prints the current frames per second to the console.
+printFPS :: InternalState -> IO ()
+printFPS internalState = do
+    -- Calculate the average frame time over the last five frame times
+    let lastFiveFrameTimes = internalLastFiveFrameTimes internalState
+    let averageFrameTime = sum lastFiveFrameTimes / fromIntegral (max 1 (length lastFiveFrameTimes))
+    let fps = 1000 / (max 1 averageFrameTime)
+    -- Print the FPS and a newline to the console, overwriting the last two lines
+    putStr $ "\x1b[1A\x1b[2K[INFO] FPS: " ++ show (round fps :: Int) ++ "\n"
+
 -- | Update the game state based on the events that have happened
 updateState :: GameState -> IO GameState
 updateState gamestate = do
-    -- We *could* use the events argument to see keyboard/mouse input, but SDL
-    -- provides us with a much nicer way to poll keyboard state!
+    -- SDL provides us with a nice way to check current keyboard press state!
+    -- It's a function that accepts a Scancode (i.e a key) and returns a Bool.
     -- For mouse input, check out https://hackage.haskell.org/package/sdl2-2.5.5.0/docs/SDL-Input-Mouse.html#g:3
     isPressed <- SDL.getKeyboardState
 
     -- Let's update the player position based on the arrow keys
     let (playerPosX, playerPosY) = playerPosition (statePlayer gamestate)
     let newX
-            | isPressed SDL.ScancodeLeft = playerPosX - 1
-            | isPressed SDL.ScancodeRight = playerPosX + 1
+            | isPressed SDL.ScancodeLeft = playerPosX - 5
+            | isPressed SDL.ScancodeRight = playerPosX + 5
             | otherwise = playerPosX
     let newY
-            | isPressed SDL.ScancodeUp = playerPosY - 1
-            | isPressed SDL.ScancodeDown = playerPosY + 1
+            | isPressed SDL.ScancodeUp = playerPosY - 5
+            | isPressed SDL.ScancodeDown = playerPosY + 5
             | otherwise = playerPosY
     let newPosition = (newX, newY)
 
@@ -128,7 +192,7 @@ drawState renderer gamestate = do
     -- ====== Draw a rectangle! At 100,100 with a size of 100x200
     SDL.drawRect renderer (Just (SDL.Rectangle (SDL.P (SDL.V2 100 100)) (SDL.V2 100 200)))
 
-    -- ====== Draw the player!
+    -- ====== Draw the player! Maybe a helper function would be nice here?
     -- First, convert the SDL Surface to an SDL Texture specific to this renderer buffer.
     -- Under the hood, this is copying the image data to the GPU in a temporary buffer!
     texture <- SDL.createTextureFromSurface renderer (playerSpriteCache (statePlayer gamestate))
