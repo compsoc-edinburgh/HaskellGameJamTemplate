@@ -78,7 +78,9 @@ targetFPS = 60
 -- There is added functionality to make sure the game runs at a consistent speed
 -- (targetFPS) so that the game speed is not tied to the speed of the computer
 -- running it. This is called a "fixed timestep" game loop. It is implemented by
--- delaying the thread when we are faster than the target FPS.
+-- delaying the thread when we are faster than the target FPS. It's optional,
+-- and you can strip it out if you want to! (in which case, just enter the
+-- inner do-block directly and remove all logic around `nextFrameTick`)
 gameLoop :: SDL.Renderer -> GameState -> IO ()
 gameLoop renderer gamestate = do
     -- Get the current time since game start in milliseconds
