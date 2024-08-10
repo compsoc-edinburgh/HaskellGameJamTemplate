@@ -24,7 +24,7 @@ jobs:
 
       - name: Build project
         run: |
-          win_setup.bat
+          .\win_setup.bat
           cabal build
 
       - name: Create a zip with exe file and assets
