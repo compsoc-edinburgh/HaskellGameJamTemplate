@@ -10,19 +10,11 @@ import Control.Monad (unless)
 -- | The central game state that contains every single bit of information about
 -- the current state of the game.
 data GameState = GameState
-    { stateInternal :: InternalState
+    { stateInternalNextFrame :: Double
+    -- ^ The time at which the next game step should occur.
     , statePlayer :: Player
     , stateEnemies :: [Enemy]
     , stateBullets :: [Bullet]
-    }
-
-data InternalState = InternalState
-    { internalNextGameTick :: Double
-    -- ^ The time at which the next game step should occur.
-    , internalLastGameTick :: Double
-    -- ^ The time at which the last game step occurred, to calculate FPS.
-    , internalLastFiveFrameTimes :: [Double]
-    -- ^ The last five frame times, to smoothen the FPS calculation.
     }
 
 -- | These are arbitrary data types that represent the player, enemies, and bullets.
@@ -65,11 +57,7 @@ init = do
 
     -- Return the initial game state
     pure $ GameState
-        { stateInternal = InternalState
-            { internalNextGameTick = fromIntegral ticks
-            , internalLastGameTick = 0
-            , internalLastFiveFrameTimes = []
-            }
+        { stateInternalNextFrame = fromIntegral ticks
         , statePlayer = Player
             { playerPosition = (0, 0)
             , playerHealth = 100
@@ -97,7 +85,7 @@ gameLoop renderer gamestate = do
     now <- fromIntegral <$> SDL.getTicks
 
     -- When should we render the next frame?
-    let nextFrameTick = internalNextGameTick (stateInternal gamestate)
+    let nextFrameTick = stateInternalNextFrame gamestate
     if nextFrameTick > now
         -- If we're ahead of schedule for target FPS, wait until the next frame
         then do
@@ -117,18 +105,10 @@ gameLoop renderer gamestate = do
             -- if they haven't!
             let userRequestedClose = any isWindowCloseEvent events
             unless userRequestedClose $ do
-                -- Print the current frames per second to the console for debugging
-                printFPS (stateInternal gamestate)
-
                 -- Continue the game loop with the updated game state, plus the
-                -- scheduled time of the next frame and the current time.
-                let lastFrameTick = internalLastGameTick (stateInternal gamestate)
+                -- scheduled time of the next frame.
                 gameLoop renderer updatedGameState
-                    { stateInternal = InternalState
-                        { internalNextGameTick = nextFrameTick + (1000 / fromIntegral targetFPS)
-                        , internalLastGameTick = now
-                        , internalLastFiveFrameTimes = (now - lastFrameTick) : take 4 (internalLastFiveFrameTimes (stateInternal gamestate))
-                        }
+                    { stateInternalNextFrame = nextFrameTick + (1000 / fromIntegral targetFPS)
                     }
   where
     -- | This function checks if the event given to us by SDL is a window close event,
@@ -137,16 +117,6 @@ gameLoop renderer gamestate = do
         case SDL.eventPayload event of
             SDL.WindowClosedEvent _data -> True
             _ -> False
-
--- | This function prints the current frames per second to the console.
-printFPS :: InternalState -> IO ()
-printFPS internalState = do
-    -- Calculate the average frame time over the last five frame times
-    let lastFiveFrameTimes = internalLastFiveFrameTimes internalState
-    let averageFrameTime = sum lastFiveFrameTimes / fromIntegral (max 1 (length lastFiveFrameTimes))
-    let fps = 1000 / (max 1 averageFrameTime)
-    -- Print the FPS and a newline to the console, overwriting the last two lines
-    putStr $ "\x1b[1A\x1b[2K[INFO] FPS: " ++ show (round fps :: Int) ++ "\n"
 
 -- | Update the game state based on the events that have happened
 updateState :: GameState -> IO GameState
