@@ -29,7 +29,7 @@ You can do this either system-wide or local to this project.
   - On DICE/MacOS/Ubuntu/other:
     - Run `./unix_setup.sh`, which relies only on `tar`, `curl`, `make` and standard C compilation tools.
   - On Windows:
-    - Run `.\win_setup.sh`.
+    - Run `.\win_setup.bat`.
 
 After SDL2 is setup, run the following to build the project and run it:
 
