@@ -32,7 +32,7 @@ jobs:
           mkdir -p Game
           cp $(cabal list-bin Game) Game/
           cp -r assets Game/
-          cp sdl2_win_mingw/bin/SDL2.dll Game/
+          cp sdl2_local_win/bin/SDL2.dll Game/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
