@@ -26,7 +26,7 @@ mkdir build
 cd build || (printf "\033[31mError: SDL2-2.30.6/build folder not found.\033[0m\n" && exit 1)
 
 printf "\033[32minfo \033[0m Configuring SDL2 to prepare build...\n"
-if ! output=$(../configure --prefix="$(pwd)/../../sdl2_local" 2>&1); then
+if ! output=$(../configure --prefix="$(cd ../../ && pwd)/../../sdl2_local" 2>&1); then
     printf "\033[31mError configuring SDL2. Check sdl_build_log.txt for more information.\033[0m\n"
     echo "$output" >> sdl_build_log.txt
     exit 1
