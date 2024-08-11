@@ -14,7 +14,7 @@ This project uses SDL2 as the cross-platform window/graphics abstraction library
 So to build this project correctly, we'll need to install SDL2 so Haskell can find it.
 You can do this either system-wide or local to this project.
 
-- System-wide SDL2 installation
+- System-wide SDL2 installation (recommended if supported)
   - On DICE:
     - This is unsupported.
   - On Windows:
