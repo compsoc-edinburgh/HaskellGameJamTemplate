@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Don't run if the sdl2_dice folder or cabal.project.local already exists
-if [ -d "sdl2_dice" ] || [ -f "cabal.project.local" ]; then
-    echo "sdl2_dice folder or cabal.project.local already exists."
+# Don't run if the sdl2_local folder or cabal.project.local already exists
+if [ -d "sdl2_local" ] || [ -f "cabal.project.local" ]; then
+    echo "sdl2_local folder or cabal.project.local already exists."
     echo "Please remove them before running this script."
     exit 1
 fi
@@ -26,7 +26,7 @@ mkdir build
 cd build || (printf "\033[31mError: SDL2-2.30.6/build folder not found.\033[0m\n" && exit 1)
 
 printf "\033[32minfo \033[0m Configuring SDL2 to prepare build...\n"
-if ! output=$(../configure --prefix="$(pwd)/../../sdl2_dice" 2>&1); then
+if ! output=$(../configure --prefix="$(pwd)/../../sdl2_local" 2>&1); then
     printf "\033[31mError configuring SDL2. Check sdl_build_log.txt for more information.\033[0m\n"
     echo "$output" >> sdl_build_log.txt
     exit 1
@@ -37,7 +37,7 @@ if ! output=$(make 2>&1); then
     echo "$output" >> sdl_build_log.txt
     exit 1
 fi
-printf "\033[32minfo \033[0m Copying built libraries to new sdl2_dice folder...\n"
+printf "\033[32minfo \033[0m Copying built libraries to new sdl2_local folder...\n"
 if ! output=$(make install 2>&1); then
     printf "\033[31mError copying SDL2. Check sdl_build_log.txt for more information.\033[0m\n"
     echo "$output" >> sdl_build_log.txt
@@ -55,8 +55,8 @@ printf "\033[32minfo \033[0m Creating cabal.project.local file...\n"
 cat <<EOF >> cabal.project.local
 package sdl2
     flags: -pkgconfig
-    extra-lib-dirs: $(pwd)/sdl2_dice/lib
-    extra-include-dirs: $(pwd)/sdl2_dice/include/SDL2
+    extra-lib-dirs: $(pwd)/sdl2_local/lib
+    extra-include-dirs: $(pwd)/sdl2_local/include/SDL2
 EOF
 
 printf "\033[32mSetup complete! Try running '\033[107m\033[30mcabal run\033[0m\033[32m' to build the project.\033[0m\n"
