@@ -16,7 +16,7 @@ main = do
     putStrLn "[info] Creating a window"
     window <- SDL.createWindow (Text.pack "My Game Window") SDL.defaultWindow
     putStrLn "[info] Creating a renderer"
-    renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
+    renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer { SDL.rendererType = SDL.AcceleratedVSyncRenderer }
 
     putStrLn "[info] Initialising the game"
     gameState <- Game.init
