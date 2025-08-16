@@ -3,3 +3,6 @@ documentation: true
 
 package h-raylib
     flags: +disable-lens
+
+package text
+    flags: -simdutf
