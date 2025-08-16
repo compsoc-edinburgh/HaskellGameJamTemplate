@@ -35,7 +35,7 @@ The project template starts a fixed-FPS game loop (at 60FPS), which handles the 
 
 Feel free to expand this in any direction you want! (Even 3D is possible if you wrangle with it enough)
 
-You can find examples on Haskell Raylib code here: https://hackage.haskell.org/package/h-raylib-5.1.2.0/src/examples/
+You can find examples on Haskell Raylib code here: https://hackage.haskell.org/package/h-raylib-5.1.2.0/src/examples/.
 In addition, any Raylib example you see on the internet can be translated easily into Haskell using directly equivalent functions.
 
 ### Adding dependencies
@@ -44,7 +44,7 @@ To add dependencies to the project, edit the `<project-name>.cabal` file's `buil
 
 ### Packaging
 
-Packaging the game can be a little complex if you're on Linux or Mac, since the game binary might contain absolute path references to libraries, which will be broken if you move it to another machine. Please investigate "Raylib game distribution" on your own :(
+Packaging the game can be a little complex if you're on Linux or Mac, since the game binary might contain absolute path references to libraries, which will be broken if you move it to another machine. Please investigate "Raylib game distribution" on your own :(. Best case, a similar procedure to below will work just out of the box.
 
 For Windows:
 - Run `cabal list-bin Game` to find where the built binary is
