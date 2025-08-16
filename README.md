@@ -1,5 +1,7 @@
 # Haskell Game Jam Template
 
+![Animated screenshot of the demo template game](./demo.gif)
+
 This is a template repository for a game written in Haskell!
 
 Comments are sprinkled wherever possible to make it easier to understand.
