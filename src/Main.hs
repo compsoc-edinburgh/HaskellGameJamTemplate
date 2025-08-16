@@ -6,9 +6,8 @@ import Raylib.Util (whileWindowOpen_)
 
 import qualified Game
 
--- This is the starting point of our application. It initializes SDL2 which is
--- the library we will use to create a window and render graphics.
--- It then enters the application loop.
+-- This is the starting point of our application. It initializes a Raylib window,
+-- and enters the application loop.
 main :: IO ()
 main = do
     -- Turn on vsync, otherwise we'll see screen tearing when monitor refresh
