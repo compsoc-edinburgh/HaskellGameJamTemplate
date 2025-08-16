@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        ghc: ["8.8.4"]
+        ghc: ["8.10.7"]
 
     steps:
       - name: Set up GHC
@@ -23,16 +23,13 @@ jobs:
         run: cabal update
 
       - name: Build project
-        run: |
-          .\win_setup.bat
-          cabal build
+        run: cabal build
 
       - name: Create a zip with exe file and assets
         run: |
           mkdir -p Game
           cp $(cabal list-bin Game) Game/
           cp -r assets Game/
-          cp sdl2_local_win/bin/SDL2.dll Game/
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

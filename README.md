@@ -4,38 +4,28 @@ This is a template repository for a game written in Haskell!
 
 Comments are sprinkled wherever possible to make it easier to understand.
 
-The "core" (where the update/draw loop is) is in `Game.hs`, check out the `updateState` and `drawState` functions!
+`Main.hs` is a lightweight shell of the program, but the core is in `Game.hs`.
+Check out the `updateState` and `drawState` functions for the update/draw logic!
 
 ## Using this template
 
-This project has been tested on GHC 8.8.4, 8.10.7, and 9.4.8, on Windows 11, macOS Sonoma (Arm), and DICE Ubuntu.
+This project has been tested on GHC 8.10.7, 9.4.8, and 9.12.2 on Windows 11 and macOS Sonoma (Arm).
 
-This project uses SDL2 as the cross-platform window/graphics abstraction library.
-So to build this project correctly, we'll need to install SDL2 so Haskell can find it.
-You can do this either system-wide or local to this project.
+This project uses Raylib as the cross-platform window/graphics abstraction library.
 
-- System-wide SDL2 installation (recommended if supported)
-  - On DICE:
-    - This is unsupported.
-  - On Windows:
-    - This is unsupported.
-  - On Linux (Ubuntu):
-    - Run `apt-get install libsdl2-dev`
-  - On Linux (other):
-    - Find the SDL2 development package from your system package manager.
-  - On MacOS:
-    - Run `brew install sdl2` assuming you have Homebrew. If you do not, follow the local installation.
-- Local SDL2 installation
-  - On DICE/MacOS/Ubuntu/other:
-    - Run `./unix_setup.sh`, which relies only on `tar`, `curl`, `make` and standard C compilation tools.
-  - On Windows:
-    - Run `.\win_setup.bat`.
-
-After SDL2 is setup, run the following to build the project and run it:
+Things should just work out of the box for Mac and Windows. Just clone this
+repository and run:
 
 ```
 cabal run
 ```
+
+For Linux users, try the above command first. If it fails, you may need to install X11 and retry.
+
+```
+sudo apt-get install libx11-dev libxrandr-dev libxi-dev libxcursor-dev libxinerama-dev
+```
+
 
 ### Understanding
 
@@ -43,17 +33,20 @@ The project template starts a fixed-FPS game loop (at 60FPS), which handles the 
 
 Feel free to expand this in any direction you want! (Even 3D is possible if you wrangle with it enough)
 
+You can find examples on Haskell Raylib code here: https://hackage.haskell.org/package/h-raylib-5.1.2.0/src/examples/
+In addition, any Raylib example you see on the internet can be translated easily into Haskell using directly equivalent functions.
+
 ### Adding dependencies
 
 To add dependencies to the project, edit the `<project-name>.cabal` file's `build-depends` clause.
 
 ### Packaging
 
-Packaging the game can be a little complex if you're on Linux or Mac, since the game binary might contain an absolute path reference to the SDL libraries, which will be broken if you move it to another machine. Please investigate "SDL game distribution" on your own :(
+Packaging the game can be a little complex if you're on Linux or Mac, since the game binary might contain absolute path references to libraries, which will be broken if you move it to another machine. Please investigate "Raylib game distribution" on your own :(
 
 For Windows:
 - Run `cabal list-bin Game` to find where the built binary is
-- Copy the SDL2.dll file, your game binary, and whatever other assets/resources you need, into a new folder
+- Copy your game binary, and whatever other assets/resources you need, into a new folder
 - Test by double-clicking the game binary to see that it runs.
 - ZIP that folder up for distribution.
 

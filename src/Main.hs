@@ -1,28 +1,32 @@
 module Main where
 
-import qualified SDL
-import qualified Data.Text as Text
+import qualified Raylib.Core as Raylib
+import qualified Raylib.Types as Raylib
+import Raylib.Util (whileWindowOpen_)
 
-import Game
+import qualified Game
 
 -- This is the starting point of our application. It initializes SDL2 which is
 -- the library we will use to create a window and render graphics.
 -- It then enters the application loop.
 main :: IO ()
 main = do
-    putStrLn "[info] Starting SDL2, the window and graphics library"
-    SDL.initializeAll
+    -- Turn on vsync, otherwise we'll see screen tearing when monitor refresh
+    -- rates don't match the game speed
+    Raylib.setConfigFlags [Raylib.VsyncHint]
+    res <- Raylib.initWindow 800 480 "raylib [haskell] example - window"
+    state <- Game.init
+    -- Tell raylib to run the below loop at approx. 60 times per second
+    Raylib.setTargetFPS 60
 
-    putStrLn "[info] Creating a window"
-    window <- SDL.createWindow (Text.pack "My Game Window") SDL.defaultWindow
-    putStrLn "[info] Creating a renderer"
-    renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer { SDL.rendererType = SDL.AcceleratedVSyncRenderer }
+    (flip whileWindowOpen_) state $ \currentState -> do
+        -- Calculate time in seconds from last update
+        deltaTime <- Raylib.getFrameTime
+        -- Update the game state
+        newState <- Game.updateState currentState (realToFrac deltaTime)
+        -- Draw the new game state
+        Game.drawState newState
+        -- Return the new game state for the next loop
+        pure newState
 
-    putStrLn "[info] Initialising the game"
-    gameState <- Game.init
-
-    putStrLn "[info] Starting the app loop"
-    Game.gameLoop renderer gameState
-
-    putStrLn "[info] Exiting"
-    SDL.destroyWindow window
+    Raylib.closeWindow (Just res)

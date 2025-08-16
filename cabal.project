@@ -1,2 +1,5 @@
 packages: ./*.cabal
 documentation: true
+
+package h-raylib
+    flags: +disable-lens
